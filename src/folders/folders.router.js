@@ -1,17 +1,22 @@
 const path = require('path');
 const express = require('express');
-const xss = require('xss');
-const FoldersService = require('./folders-service');
+const xss = require('xss'); // for sanitisation purposes
+const FoldersService = require('./folders.service');
 
 const foldersRouter = express.Router();
 const jsonParser = express.json();
+
+const serializeFolder = folder => ({
+    id: folder.id,
+    name: xss(folder.name),
+})
 
 foldersRouter
     .route('/')
     .get((req, res, next) => {
         FoldersService.getAllFolders(req.app.get('db'))
             .then(folders => {
-                res.json(folders)
+                res.json(folders.map(serializeFolder))
             })
             .catch(next)
     })
@@ -22,7 +27,7 @@ foldersRouter
         for (const [key, value] of Object.entries(newFolder))
             if (value == null) {
                 return res.status(400).json({
-                    error: { message: `Missing 'name' in the request body`}
+                    error: { message: `Missing 'name' in request body`}
                 })
             }
 
@@ -34,7 +39,7 @@ foldersRouter
             .then(folder => {
                 res .status(201)
                     .location(path.posix.join(req.originalUrl, `/${folder.id}`))
-                    .json(folder)
+                    .json(serializeFolder(folder))
             })
             .catch(next)
     })
@@ -49,16 +54,16 @@ foldersRouter
                 .then(folder => {
                     if (!folder) {
                         return res.status(404).json({
-                            error: { message: `Folder doesn't exist`}
+                            error: { message: `Folder doesn't exist` }
                         })
                     }
-                    res.folder = folder
-                    next()
+                    res.folder = folder;
+                    next();
                 })
                 .catch(next)
         })
         .get((req, res, next) => {
-            res.json(res.folder)
+            res.json(serializeFolder(res.folder))
         })
     
 
