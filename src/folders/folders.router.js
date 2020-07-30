@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
-const xss = require('xss');
-const FoldersService = require('./folders-service');
+const xss = require('xss'); // for sanitisation purposes
+const FoldersService = require('./folders.service');
 
 const foldersRouter = express.Router();
 const jsonParser = express.json();
@@ -27,7 +27,7 @@ foldersRouter
         for (const [key, value] of Object.entries(newFolder))
             if (value == null) {
                 return res.status(400).json({
-                    error: { message: `Missing 'name' in the request body`}
+                    error: { message: `Missing 'name' in request body`}
                 })
             }
 
@@ -54,11 +54,11 @@ foldersRouter
                 .then(folder => {
                     if (!folder) {
                         return res.status(404).json({
-                            error: { message: `Folder doesn't exist`}
+                            error: { message: `Folder doesn't exist` }
                         })
                     }
-                    res.folder = folder
-                    next()
+                    res.folder = folder;
+                    next();
                 })
                 .catch(next)
         })
