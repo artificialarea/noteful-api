@@ -15,5 +15,10 @@ CREATE TABLE notes (
 );
 
 
--- REFACTOR like so?
--- folder_id TEXT REFERENCES folders(id) ON DELETE CASCADE NOT NULL
+-- FOOTNOTE
+
+-- folderId INTEGER REFERENCES folders(id) ON DELETE CASCADE NOT NULL
+
+-- Unfortunately can't mimic Noteful JSON Server property name `folderid`
+-- because PostgreSQL converts all table column names into lowercase,
+-- so `folderId` would become `folderid`.
