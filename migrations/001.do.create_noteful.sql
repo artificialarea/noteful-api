@@ -13,3 +13,7 @@ CREATE TABLE notes (
     content TEXT,
     folder_id INTEGER REFERENCES folders(id) ON DELETE CASCADE NOT NULL
 );
+
+
+-- REFACTOR like so?
+-- folder_id TEXT REFERENCES folders(id) ON DELETE CASCADE NOT NULL
