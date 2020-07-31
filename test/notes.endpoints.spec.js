@@ -5,6 +5,8 @@ const { makeFoldersArray } = require('./folders.fixtures')
 const supertest = require('supertest');
 const { expect } = require('chai');
 
+const Helper = require('./helper')
+
 describe(`Notes Endpoints`, () => {
 
     let db;
@@ -14,10 +16,15 @@ describe(`Notes Endpoints`, () => {
             connection: process.env.TEST_DB_URL,
         })
         app.set('db', db)
+
+        // Helper for defining value of 'folderType' in notes.router
+        // Explanation as to why in /test/helper.js
+        Helper.stateOfDatabase = 'test';
+
     });
     after('disconnect from db', () => db.destroy());
 
-    // see comments in folders.endpoints.spec.js as to why..
+    // see comments in folders.endpoints.spec.js as to why...
     before('clean the table', () => db.raw('TRUNCATE folders, notes RESTART IDENTITY CASCADE'));
     afterEach('cleanup', () => db.raw('TRUNCATE folders, notes RESTART IDENTITY CASCADE'));
 
@@ -164,8 +171,6 @@ describe(`Notes Endpoints`, () => {
                     .send(newNote)
                     .expect(201)
                     .expect(res => {
-                        // console.log('res.body: ', res.body)
-                        // console.log('newNote: ', newNote)
                         expect(res.body.name).to.eql(newNote.name)
                         expect(res.body.folder_id).to.eql(newNote.folder_id)
                         expect(res.body.content).to.eql(newNote.content)
@@ -175,7 +180,7 @@ describe(`Notes Endpoints`, () => {
                         const actual = new Date(res.body.modified).toLocaleString();
                         expect(actual).to.eql(expected)
                     })
-                    .then(postRes => {   // TODO once getById done
+                    .then(postRes => {   
                         return supertest(app)
                             .get(`/notes/${postRes.body.id}`)
                             .expect(postRes.body)

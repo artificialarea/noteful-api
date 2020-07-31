@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path')
 const express = require('express');
 const xss = require('xss'); // for sanitisation purposes
@@ -6,44 +7,55 @@ const NotesService = require('./notes.service');
 const notesRouter = express.Router();
 const jsonParser = express.json();
 
-/* 
-CURRENTLY LIVE WORKS BUT TEST FAILS 
-REFACTOR so that the property name of notes foreign key is changes
-with a ternary conditional depending on the environment? 
-e.g. 
-process.env.DB_URL = notes.folderId
-process.env.TEST_DB_URL = notes.folder_id
-?????????
-
-PSEUDOCODE
-if (process.env.DB_URL) {
-    folderType = folderId
-} else if (process.env.TEST_DB_URL) {
-    folderType = folder_id
-}
-*/
+// Helper module for defining value of 'folderType'
+// Explanation in /test/helper.js
+const Helper = require('../../test/helper') 
+let folderType;
 
 const serializeNote = note => ({
     id: note.id,
     name: xss(note.name),
     modified: note.modified,
-    folderId: note.folder_id,  
-    // `${folderType}`: note.folder_id,  // SEE ABOVE ^^
+    [folderType]: note.folder_id,
     content: xss(note.content)
 });
 
 notesRouter
     .route('/')
+    .all((req, res, next) => {
+        folderType = (Helper.stateOfDatabase == 'test' ? 'folder_id' : 'folderId')
+        next();
+    })
     .get((req, res, next) => {
         NotesService.getAllNotes(req.app.get('db'))
             .then(notes => {
-                res.json(notes.map(serializeNote)) // Verify no need for // **** Id
+                res.json(notes.map(serializeNote))
             })
             .catch(next)
     })
     .post(jsonParser, (req, res, next) => {
-        const { name, folderId, content } = req.body;  // **** Id
-        const newNote = { name, folder_id: folderId, content }; // **** Id  CAN'T USE DESTUCTURED OBJECT , NEED TO BREAK OUT EACH PROP 
+
+        let name, folder_id, folderId, content;
+        let newNote;
+
+        if (folderType === 'folder_id') {               // FOR TEST
+            name = req.body.name;
+            folder_id = req.body.folder_id;             
+            content = req.body.content;
+            newNote = { name, folder_id, content };
+        } else {                                        // FOR REACT
+            name = req.body.name;
+            folderId = req.body.folderId;
+            content = req.body.content;
+            newNote = { name, folder_id: folderId, content };
+        }
+
+        // // WORKS IN TEST
+        // const { name, folder_id, content } = req.body;
+        // const newNote = { name, folder_id, content };
+        // // WORKS IN REACT
+        // const { name, folderId, content } = req.body;
+        // const newNote = { name, folder_id: folderId, content };
 
         for (const [key, value] of Object.entries(newNote)) {
             if (value == null) {
@@ -53,7 +65,6 @@ notesRouter
             }
         }
 
-        // newNote.content = content; // add field, if has value (not required)
         NotesService.insertNote(
             req.app.get('db'),
             newNote
@@ -70,6 +81,8 @@ notesRouter
 notesRouter
     .route('/:note_id')
     .all((req, res, next) => {
+        folderType = (Helper.stateOfDatabase == 'test' ? 'folder_id' : 'folderId')
+
         NotesService.getById(
             req.app.get('db'),
             req.params.note_id
@@ -98,7 +111,6 @@ notesRouter
             })
             .catch(next)
     })
-
 
 
 module.exports = notesRouter;

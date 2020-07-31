@@ -16,7 +16,8 @@ describe(`Folders Endpoints`, () => {
     });
     after('disconnect from db', () => db.destroy());
 
-    // Due to tables related via foreign keys, it is no longer possible to TRUNCATE just a single table
+    // Due to tables related via foreign keys, 
+    // it is no longer possible to TRUNCATE just a single table
     // before('clean the table', () => db('folders').truncate());
     // afterEach('cleanup', () => db('folders').truncate());
 
@@ -24,7 +25,8 @@ describe(`Folders Endpoints`, () => {
     // plus need to reset RESTART the sequence generatator to generate a primary key
     before('clean the table', () => db.raw('TRUNCATE folders, notes RESTART IDENTITY CASCADE'));
     afterEach('cleanup', () => db.raw('TRUNCATE folders, notes RESTART IDENTITY CASCADE'));
-    // then in every beforeEach hook that is used to load data, ensure that folders (with no foreign key) is loaded first
+    // then in every beforeEach hook that is used to load data, 
+    // ensure that folders (with no foreign key) is loaded first
 
     describe('GET /folders', () => {
 
