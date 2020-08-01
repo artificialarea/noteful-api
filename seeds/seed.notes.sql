@@ -6,7 +6,7 @@ VALUES
     ('Seed Folder Uno');
 
 INSERT INTO
-    notes (name, folder_id, content)
+    notes (name, folderid, content)
 VALUES
     ('Seed Note One', 1, 'Lorem ipsum duis autem'),
     ('Seed Note Two', 1, 'Duis autem forse');
