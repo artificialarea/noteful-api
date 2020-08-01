@@ -7,25 +7,16 @@ const NotesService = require('./notes.service');
 const notesRouter = express.Router();
 const jsonParser = express.json();
 
-// Helper module for defining value of 'folderType'
-// Explanation in /test/helper.js
-const Helper = require('../../test/helper') 
-let folderType;
-
 const serializeNote = note => ({
     id: note.id,
     name: xss(note.name),
     modified: note.modified,
-    [folderType]: note.folder_id,   // folderType = folderId —vs— folder_id
+    folderId: note.folderid,   
     content: xss(note.content)
 });
 
 notesRouter
     .route('/')
-    .all((req, res, next) => {
-        folderType = (Helper.stateOfDatabase == 'test' ? 'folder_id' : 'folderId')
-        next();
-    })
     .get((req, res, next) => {
         NotesService.getAllNotes(req.app.get('db'))
             .then(notes => {
@@ -34,28 +25,12 @@ notesRouter
             .catch(next)
     })
     .post(jsonParser, (req, res, next) => {
-
-        // // WORKS IN TEST
-        // const { name, folder_id, content } = req.body;
-        // const newNote = { name, folder_id, content };
-        // // WORKS IN REACT
-        // const { name, folderId, content } = req.body;
-        // const newNote = { name, folder_id: folderId, content };
-
-        let name, folder_id, folderId, content;
-        let newNote;
-
-        if (folderType === 'folder_id') {               // FOR TEST
-            name = req.body.name;
-            folder_id = req.body.folder_id;             
-            content = req.body.content;
-            newNote = { name, folder_id, content };
-        } else {                                        // FOR REACT
-            name = req.body.name;
-            folderId = req.body.folderId;
-            content = req.body.content;
-            newNote = { name, folder_id: folderId, content };
-        }
+        const { name, folderId, content } = req.body;
+        const newNote = { 
+            name, 
+            folderid: folderId, 
+            content 
+        };
 
         for (const [key, value] of Object.entries(newNote)) {
             if (value == null) {
@@ -81,7 +56,6 @@ notesRouter
 notesRouter
     .route('/:note_id')
     .all((req, res, next) => {
-        folderType = (Helper.stateOfDatabase == 'test' ? 'folder_id' : 'folderId')
 
         NotesService.getById(
             req.app.get('db'),

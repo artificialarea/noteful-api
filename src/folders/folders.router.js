@@ -45,11 +45,11 @@ foldersRouter
     })
 
     foldersRouter
-        .route('/:folder_id')
+        .route('/:folderid')
         .all((req, res, next) => {
             FoldersService.getById(
                 req.app.get('db'),
-                req.params.folder_id
+                req.params.folderid
             )
                 .then(folder => {
                     if (!folder) {

@@ -74,7 +74,7 @@ describe(`Folders Endpoints`, () => {
         });
     });
 
-    describe('GET /folders/:folder_id', () => {
+    describe('GET /folders/:folderid', () => {
 
         context(`Given no folders`, () => {
             it(`responds with 404`, () => {
