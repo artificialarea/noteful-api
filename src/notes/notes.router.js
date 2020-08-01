@@ -82,6 +82,10 @@ notesRouter
         )
             .then(numRowsAffected => {
                 res.status(204).end()
+                // NOTE:
+                // because there is no content/json response on promise success
+                // be sure in the client app there is no .then(res => res.json())
+                // otherwise the app breaks with Uncaught (in promise) "SyntaxError: Unexpected end of JSON input"
             })
             .catch(next)
     })
