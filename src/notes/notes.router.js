@@ -64,7 +64,7 @@ notesRouter
             .then(note => {
                 if (!note) {
                     return res.status(404).json({
-                        error: { message: `Note doesn't exist`}
+                        error: { message: `Note Not Found`}
                     })
                 }
                 res.note = note;
@@ -82,10 +82,36 @@ notesRouter
         )
             .then(numRowsAffected => {
                 res.status(204).end()
-                // NOTE:
-                // because there is no content/json response on promise success
-                // be sure in the client app there is no .then(res => res.json())
-                // otherwise the app breaks with Uncaught (in promise) "SyntaxError: Unexpected end of JSON input"
+                // NOTE: because there is no content/json response on promise success
+                // be sure the client app has no .then(res => res.json())
+                // otherwise, the app breaks with Uncaught (in promise) "SyntaxError: Unexpected end of JSON input"
+            })
+            .catch(next)
+    })
+    .patch(jsonParser, (req, res, next) => {
+        const { name, folderId, content } = req.body;
+        const newNote = { 
+            name, 
+            folderid: folderId, 
+            content 
+        };
+
+        const numberOfValues = Object.values(newNote).filter(Boolean).length;
+        if (numberOfValues === 0) {
+            return res.status(400).json({
+                error: {
+                    messsage: `Request body must contain either 'name', 'folderId', or 'content'`
+                }
+            })
+        }
+
+        NotesService.updateNote(
+            req.app.get('db'),
+            req.params.note_id,
+            newNote
+        )
+            .then(note => {
+                res .status(204).end()
             })
             .catch(next)
     })

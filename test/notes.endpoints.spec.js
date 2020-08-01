@@ -97,7 +97,7 @@ describe(`Notes Endpoints`, () => {
             it(`responds with 404`, () => {
                 return supertest(app)
                     .get(`/notes/12312`)
-                    .expect(404, { error: { message: `Note doesn't exist`} })
+                    .expect(404, { error: { message: `Note Not Found`} })
             });
         });
 
@@ -157,7 +157,9 @@ describe(`Notes Endpoints`, () => {
         context(`Given folder.id is available for notes.folderid foreign key`, () => {
 
             const testFolders = makeFoldersArray();
+
             beforeEach('insert folders (associated with newNote foreign key folderid)', () => {
+                
                 return db   
                     .into('folders')
                     .insert(testFolders)
@@ -205,16 +207,16 @@ describe(`Notes Endpoints`, () => {
         
         });
 
-    })
+    });
 
     describe('DELETE /notes/:note_id', () => {
 
-        context(`Given that note doesn't exist`, () => {
+        context(`Given that Note Not Found`, () => {
             it(`responds with 404`, () => {
                 const noteId = 1232123123;
                 return supertest(app)
                     .delete(`/notes/${noteId}`)
-                    .expect(404, { error: { message: `Note doesn't exist` } })
+                    .expect(404, { error: { message: `Note Not Found` } })
             });
         })
 
@@ -251,6 +253,88 @@ describe(`Notes Endpoints`, () => {
         
         });
 
-    })
+    });
+
+    describe(`PATCH /notes`, () => {
+
+        context(`Given no notes in database`, () => {
+            it(`responds with 404`, () => {
+                const noteId = 9898984;
+                return supertest(app)
+                    .patch(`/notes/${noteId}`)
+                    .expect(404, { error: { message: `Note Not Found` } })
+            });
+        });
+
+        context(`Given there are notes in database`, () => {
+
+            const testFolders = makeFoldersArray();
+            const testNotes = makeNotesArray();
+
+            beforeEach(`insert notes (and folders)`, () => {
+                return db
+                    .into('folders')
+                    .insert(testFolders)
+                    .then(() => {
+                        return db
+                            .into('notes')
+                            .insert(testNotes)
+                    })
+            })
+
+            it(`responds with 204 and updates note`, () => {
+                const idToUpdate = 2;
+                const updateNote = {
+                    name: 'Updated Note Two',
+                    folderid: 3,
+                    content: 'Updated content Duis autem forse...'
+                };
+                const expectedNote = {
+                    ...testNotes[idToUpdate - 1],
+                    ...updateNote,
+                };
+                
+                return supertest(app)
+                    .patch(`/notes/${idToUpdate}`)
+                    .send(sanitizeNote(updateNote))
+                    .expect(204)
+                    .then(res => {
+                        return supertest(app)
+                            .get(`/notes/${idToUpdate}`)
+                            .expect(sanitizeNote(expectedNote))
+                    })
+            });
+
+            it(`responds with 400 when no required fields supplied`, () => {
+                const idToUpdate = 2;
+                return supertest(app)
+                    .patch(`/notes/${idToUpdate}`)
+                    .send({ irrelevantField: 'foo' })
+                    .expect(400, {
+                        error: {
+                            messsage: `Request body must contain either 'name', 'folderId', or 'content'`
+                        }
+                    })
+            });
+
+
+            it(`Removes cross-site scripting (XSS) attack from response`, () => {
+                const idToUpdate = 2;
+                const { postMaliciousNote, postExpectedNote } = makeMaliciousNote();
+                return supertest(app)
+                    .patch(`/notes/${idToUpdate}`)
+                    .send(postMaliciousNote)
+                    .expect(204)
+                    .then(postRes => {
+                        return supertest(app)
+                            .get(`/notes/${idToUpdate}`)
+                            .expect(postRes => {
+                                expect(postRes.body.name).to.eql(postExpectedNote.name)
+                                expect(postRes.body.content).to.eql(postExpectedNote.content)
+                            })
+                    })         
+            });
+        });
+    });
 
 });
