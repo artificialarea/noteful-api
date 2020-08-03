@@ -1,5 +1,14 @@
 # Noteful API
 
+## Deploy Server and Database to Production (Heroku)
+
+Per Checkpoint 20: https://courses.thinkful.com/node-postgres-v1/checkpoint/20#assignment
+
+with guidance from **Checkpoint 7: Deploy a Server**: https://courses.thinkful.com/node-postgres-v1/checkpoint/7
+
+<br />
+
+## Add relationships to Noteful
 **Pair: Alen + Sacha**
 
 Per assignment: https://courses.thinkful.com/node-postgres-v1/checkpoint/19#assignment
