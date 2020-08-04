@@ -1,10 +1,21 @@
 # Noteful API
 
+**Demo via client:** https://noteful-client.artificialarea.vercel.app/
+
+
+<br />
+
+<br />
+
+<hr />
+
+# Iterations
+
 ## Deploy Server and Database to Production (Heroku)
 
 Assignment per [**Node & Postgres Checkpoint 20**](https://courses.thinkful.com/node-postgres-v1/checkpoint/20#assignment) ...with guidance from [**Checkpoint 7: Deploy a Server**](https://courses.thinkful.com/node-postgres-v1/checkpoint/7)
 
-<br /> 
+Completed assignment, but due to production migration issue have to migrate/seed heroku postgresql database tables via psql/dBeaver, not via `npm run deploy`.
 
 ## Notable migration production issue (and resolution)
 
@@ -76,8 +87,9 @@ Per assignment: https://courses.thinkful.com/node-postgres-v1/checkpoint/19#assi
 
 Unfortunately, cannot replicate `folderId` in Postgres, because PostgreSQL converts all table column names into lowercase; so the foreign key in the database is `folderid`.
 
-To simpify refactoring, opted to make modifications on the api side. The Express router middleware 
-handles the translations of the name of the notes folder id between client and server in `notes.router` via a `serializeNote` expression prior to sending response back to client... and via `sanitizeNote` expression in the `notes.endpoints.spec` tests.
+To simpify refactoring, opted to make modifications on the api side. 
+* **`branch: 02_sync-with-react_v2-santize`** The Express router middleware handles the translations of the name of the notes folder id between client and server in `notes.router` via a `serializeNote` expression prior to sending response back to client... and via `sanitizeNote` expression in the `notes.endpoints.spec` tests. 
+* **`branch: **02_synch-with-react_v1-handler`** Prior to that, I had a more convoluted solution via a context-esque `handler` component. 
 
 <br />
 
