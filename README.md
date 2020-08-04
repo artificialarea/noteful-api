@@ -2,13 +2,13 @@
 
 ## Deploy Server and Database to Production (Heroku)
 
-Per Checkpoint 20: https://courses.thinkful.com/node-postgres-v1/checkpoint/20#assignment
+Assignment per [**Node & Postgres Checkpoint 20**](https://courses.thinkful.com/node-postgres-v1/checkpoint/20#assignment) ...with guidance from [**Checkpoint 7: Deploy a Server**](https://courses.thinkful.com/node-postgres-v1/checkpoint/7)
 
-with guidance from **Checkpoint 7: Deploy a Server**: https://courses.thinkful.com/node-postgres-v1/checkpoint/7
+<br /> 
 
-### `npm run migrate:production` fix
+## Notable migration production issue (and resolution)
 
-As happened before with [blogful-api](https://github.com/artificialarea/blogful-api/blob/master/README.md) & [bookmarks-server](https://github.com/artificialarea/bookmarks-server/blob/master/README.md) — reached an impasse at the stage of trying to run migrations on the heroku-postresql.
+As happened earlier with [blogful-api](https://github.com/artificialarea/blogful-api/blob/master/README.md) & [bookmarks-server](https://github.com/artificialarea/bookmarks-server/blob/master/README.md) exercises — reached an impasse at the stage of trying to run migrations on the heroku-postresql.
 
 **`$ npm run migrate:production`** kept failing at the `noteful-api migrate script` =/
 
