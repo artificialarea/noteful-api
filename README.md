@@ -23,7 +23,39 @@ As happened earlier with [blogful-api](https://github.com/artificialarea/blogful
 
 **`$ npm run migrate:production`** kept failing at the `noteful-api migrate script` =/
 
-Eventually deduced that the source of the migration issue was that I erroneously installed `postgrator` as a dependency instead of `postgrator-cli`
+Eventually, thanks to my chum Nathan, deduced that the source of the migration issue was that I erroneously installed `postgrator` as a dependency instead of `postgrator-cli`
+
+Sequence:
+
+To fix `sh: 1: postgrator: not found error`
+```
+$ npm uninstall postgrator 
+$ npm uninstall postgrator-cli 
+$ npm install postgrator-cli@3.2.0
+```
+Drop existing tables from the database in psql first.
+Login to heroku database psql
+```
+$ heroku pg:psql
+```
+Drop the tables
+```
+DROP TABLE notes;
+DROP TABLE folders;
+DROP TABLE schemaversion;
+```
+Exit psql, commit changes to git, then push to heroku
+```
+$ git push heroku master
+```
+Run the migrations
+```
+$ npm run migrate:production
+```
+Seed the database
+```
+$ heroku pg:psql -f ./seeds/seed.noteful_notes.sql
+```
 
 <br />
 
